@@ -5,6 +5,15 @@ const createRide = async (req, res) => {
   try {
     const { from, to, date, time, seats, price } = req.body;
 
+    const rideDate = new Date(date);
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    if (rideDate < today) {
+      return res
+        .status(400)
+        .json({ message: 'Ride date cannot be in the past.' });
+    }
+
     const ride = await Ride.create({
       from,
       to,
@@ -28,7 +37,7 @@ const createRide = async (req, res) => {
 // GET ALL RIDES / SEARCH
 const getRides = async (req, res) => {
   try {
-    const { from, to } = req.query;
+    const { from, to, date } = req.query;
 
     const filter = {};
 
@@ -40,7 +49,20 @@ const getRides = async (req, res) => {
       filter.to = { $regex: to, $options: 'i' };
     }
 
-    const rides = await Ride.find(filter).populate('driver', 'name email');
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setUTCHours(0, 0, 0, 0);
+      filter.date = { $gte: startOfDay };
+    } else {
+      // Always exclude past rides by default
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      filter.date = { $gte: today };
+    }
+
+    const rides = await Ride.find(filter)
+      .sort({ date: 1, time: 1 })
+      .populate('driver', 'name email');
 
     res.json(rides);
   } catch (error) {

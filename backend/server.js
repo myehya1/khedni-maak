@@ -2,12 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+dotenv.config();
+
 const connectDB = require('./config/db');
 
 const userRoutes = require('./routes/userRoutes');
 const rideRoutes = require('./routes/rideRoutes');
-
-dotenv.config();
+const aiRoutes = require('./routes/aiRoutes');
 
 connectDB();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/rides', rideRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/', (req, res) => {
   res.send('🚗 Carpooling API is running!');

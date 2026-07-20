@@ -9,6 +9,8 @@ import {
   FaArrowRight,
 } from 'react-icons/fa';
 import CitySelect from '../components/CitySelect';
+
+const todayStr = () => new Date().toISOString().split('T')[0];
 function CreateRide() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -143,6 +145,7 @@ function CreateRide() {
                   <input
                     type="date"
                     name="date"
+                    min={todayStr()}
                     onChange={handleChange}
                     required
                     style={{ paddingLeft: 34 }}

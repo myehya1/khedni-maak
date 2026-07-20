@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import {
   FaUser,
   FaEnvelope,
@@ -14,9 +15,12 @@ import {
   FaTrash,
   FaCarSide,
   FaPlus,
+  FaExclamationTriangle,
 } from 'react-icons/fa';
 
 function Profile() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +55,58 @@ function Profile() {
     }
   };
 
+  const leaveRide = async (rideId) => {
+    if (!window.confirm('Are you sure you want to leave this ride?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await api.post(
+        `/rides/${rideId}/cancel`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      loadProfile();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to leave ride');
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete your account? This will also delete all your created rides and cannot be undone.',
+      )
+    )
+      return;
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete('/users/account', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      logout();
+      navigate('/');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to delete account');
+    }
+  };
+
   if (loading)
     return (
-      <div style={{ textAlign: 'center', padding: 80 }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>⏳</div>
-        <p style={{ color: 'var(--text-muted)' }}>Loading your profile...</p>
+      <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            border: '4px solid var(--border)',
+            borderTopColor: 'var(--primary)',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 16px',
+          }}
+        />
+        <p style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
+          Loading your profile...
+        </p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
 
@@ -266,9 +317,63 @@ function Profile() {
             </div>
           ) : (
             profile.joinedRides.map((ride) => (
-              <RideRow key={ride._id} ride={ride} />
+              <RideRow key={ride._id} ride={ride}>
+                <button
+                  onClick={() => leaveRide(ride._id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 14px',
+                    fontSize: 13,
+                    background: 'transparent',
+                    border: '1.5px solid var(--danger)',
+                    color: 'var(--danger)',
+                    boxShadow: 'none',
+                  }}
+                >
+                  <FaTrash /> Leave
+                </button>
+              </RideRow>
             ))
           )}
+        </div>
+
+        {/* ── Danger Zone ── */}
+        <div className="danger-zone" style={{ marginTop: 40 }}>
+          <p className="danger-zone-title">⚠ Danger Zone</p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 12,
+            }}
+          >
+            <div>
+              <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 3 }}>
+                Delete Account
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
+                Permanently deletes your account and all your created rides.
+                This cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={deleteAccount}
+              style={{
+                background: 'var(--danger)',
+                color: '#fff',
+                padding: '9px 20px',
+                fontSize: 13,
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
+              }}
+            >
+              <FaExclamationTriangle /> Delete Account
+            </button>
+          </div>
         </div>
       </div>
     </div>

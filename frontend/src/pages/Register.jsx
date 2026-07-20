@@ -33,16 +33,7 @@ function Register() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: 'calc(100vh - 68px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px',
-        background: 'var(--bg)',
-      }}
-    >
+    <div className="auth-page">
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🚗</div>

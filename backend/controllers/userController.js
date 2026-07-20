@@ -103,8 +103,33 @@ const getProfile = async (req, res) => {
   }
 };
 
+// DELETE ACCOUNT
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Remove user from passengers list on all rides they joined
+    await Ride.updateMany(
+      { passengers: userId },
+      { $pull: { passengers: userId }, $inc: { seats: 1 } },
+    );
+
+    // Delete all rides created by this user
+    await Ride.deleteMany({ driver: userId });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getProfile,
+  deleteAccount,
 };

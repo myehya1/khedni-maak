@@ -1,25 +1,37 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FaCarSide,
   FaSearch,
   FaMapMarkerAlt,
-  FaArrowRight,
+  FaExchangeAlt,
+  FaCalendarAlt,
+  FaLock,
 } from 'react-icons/fa';
 import api from '../services/api';
 import RideCard from '../components/RideCard';
 import CitySelect from '../components/CitySelect';
+import { useAuth } from '../context/AuthContext';
+import './SearchRides.css';
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+
 function SearchRides() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const [date, setDate] = useState(todayStr());
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [authPrompt, setAuthPrompt] = useState(false);
 
   const searchRides = async () => {
     try {
       setLoading(true);
       setSearched(true);
-      const res = await api.get('/rides', { params: { from, to } });
+      const res = await api.get('/rides', { params: { from, to, date } });
       setRides(res.data);
     } catch (error) {
       console.error(error);
@@ -28,112 +40,142 @@ function SearchRides() {
     }
   };
 
+  const authHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  });
+
   const joinRide = async (rideId) => {
+    if (!user) {
+      setAuthPrompt(true);
+      setTimeout(() => {
+        setAuthPrompt(false);
+        navigate('/login');
+      }, 2000);
+      return;
+    }
     try {
-      const token = localStorage.getItem('token');
-      await api.post(
-        `/rides/${rideId}/join`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await api.post(`/rides/${rideId}/join`, {}, { headers: authHeaders() });
       searchRides();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to join ride.');
     }
   };
 
+  const leaveRide = async (rideId) => {
+    try {
+      await api.post(`/rides/${rideId}/cancel`, {}, { headers: authHeaders() });
+      searchRides();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to leave ride.');
+    }
+  };
+
+  const hasJoined = (ride) =>
+    user && ride.passengers?.some((p) => (p._id || p) === user._id);
+
   return (
     <div style={{ minHeight: 'calc(100vh - 68px)', background: 'var(--bg)' }}>
-      {/* Search header */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg,#4f46e5,#6366f1,#0ea5e9)',
-          padding: '48px 20px 64px',
-          textAlign: 'center',
-          color: '#fff',
-        }}
-      >
-        <h1
+      {authPrompt && (
+        <div
           style={{
-            fontSize: 'clamp(24px,4vw,36px)',
-            fontWeight: 800,
-            marginBottom: 10,
+            position: 'fixed',
+            top: 88,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'var(--primary)',
+            color: '#fff',
+            padding: '14px 24px',
+            borderRadius: 'var(--radius-sm)',
+            boxShadow: 'var(--shadow-lg)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            fontWeight: 600,
+            fontSize: 15,
+            zIndex: 2000,
+            animation: 'fadeInUp 0.2s ease',
+            whiteSpace: 'nowrap',
           }}
         >
-          Find Your Ride
-        </h1>
-        <p style={{ opacity: 0.88, marginBottom: 32, fontSize: 16 }}>
-          Search available rides across Lebanon
+          <FaLock /> Please sign in to join a ride. Redirecting...
+        </div>
+      )}
+      {/* Search hero */}
+      <div className="sr-hero">
+        <h1 className="sr-hero-title">Where are you heading?</h1>
+        <p className="sr-hero-sub">
+          Find affordable rides across Lebanon in seconds
         </p>
 
-        {/* Search bar */}
-        <div style={{ maxWidth: 700, margin: '0 auto' }}>
-          <div
-            className="card"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '12px 16px',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <FaMapMarkerAlt
-                style={{ color: 'var(--primary)', flexShrink: 0 }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <CitySelect
-                  name="from"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  placeholder="Departure City"
-                />
+        {/* Search card */}
+        <div className="sr-card">
+          <div className="sr-fields">
+            {/* FROM */}
+            <div className="sr-field">
+              <div className="sr-field-label">
+                <FaMapMarkerAlt /> From
               </div>
-            </div>
-            <FaArrowRight style={{ color: 'var(--border)', flexShrink: 0 }} />
-            <div
-              style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <FaMapMarkerAlt
-                style={{ color: 'var(--secondary)', flexShrink: 0 }}
+              <CitySelect
+                name="from"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                placeholder="Departure city"
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <CitySelect
-                  name="to"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  placeholder="Destination City"
-                />
-              </div>
             </div>
+
+            {/* Swap */}
+            <div className="sr-divider-wrap">
+              <div className="sr-divider" />
+              <button
+                type="button"
+                className="sr-swap"
+                title="Swap cities"
+                onClick={() => {
+                  const tmp = from;
+                  setFrom(to);
+                  setTo(tmp);
+                }}
+              >
+                <FaExchangeAlt />
+              </button>
+            </div>
+
+            {/* TO */}
+            <div className="sr-field">
+              <div className="sr-field-label sr-field-label--blue">
+                <FaMapMarkerAlt /> To
+              </div>
+              <CitySelect
+                name="to"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                placeholder="Destination city"
+              />
+            </div>
+
+            <div className="sr-divider" />
+
+            {/* DATE */}
+            <div className="sr-field sr-field--date">
+              <div className="sr-field-label">
+                <FaCalendarAlt /> Date
+              </div>
+              <input
+                type="date"
+                value={date}
+                min={todayStr()}
+                onChange={(e) => setDate(e.target.value)}
+                className="sr-date-input"
+              />
+            </div>
+
+            {/* SEARCH */}
             <button
+              className="sr-search-btn"
               onClick={searchRides}
               disabled={loading}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '11px 22px',
-                borderRadius: 10,
-                flexShrink: 0,
-              }}
             >
-              <FaSearch /> {loading ? 'Searching...' : 'Search'}
+              <FaSearch /> {loading ? 'Searching…' : 'Search'}
             </button>
           </div>
         </div>
@@ -157,7 +199,8 @@ function SearchRides() {
               Search for rides above
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
-              Enter your departure and destination to find available rides.
+              Enter your departure, destination and date to find available
+              rides.
             </p>
           </div>
         ) : loading ? (
@@ -200,27 +243,59 @@ function SearchRides() {
             >
               {rides.length} ride{rides.length !== 1 ? 's' : ''} found
             </p>
-            {rides.map((ride) => (
-              <RideCard key={ride._id} ride={ride}>
-                <button
-                  onClick={() => joinRide(ride._id)}
-                  disabled={ride.seats === 0}
-                  style={
-                    ride.seats === 0
-                      ? {
-                          background: 'var(--border)',
-                          color: 'var(--text-muted)',
-                          cursor: 'not-allowed',
-                          boxShadow: 'none',
-                          transform: 'none',
-                        }
-                      : {}
-                  }
-                >
-                  {ride.seats === 0 ? 'Ride Full' : '⭐ Join Ride'}
-                </button>
-              </RideCard>
-            ))}
+            {rides.map((ride) => {
+              const joined = hasJoined(ride);
+              const isDriver =
+                user && (ride.driver?._id || ride.driver) === user._id;
+              return (
+                <RideCard key={ride._id} ride={ride}>
+                  {isDriver ? (
+                    <button
+                      disabled
+                      style={{
+                        background: 'var(--border)',
+                        color: 'var(--text-muted)',
+                        cursor: 'not-allowed',
+                        boxShadow: 'none',
+                        transform: 'none',
+                      }}
+                    >
+                      Your Ride
+                    </button>
+                  ) : joined ? (
+                    <button
+                      onClick={() => leaveRide(ride._id)}
+                      style={{
+                        background: 'transparent',
+                        border: '1.5px solid var(--danger)',
+                        color: 'var(--danger)',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      Leave Ride
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => joinRide(ride._id)}
+                      disabled={ride.seats === 0}
+                      style={
+                        ride.seats === 0
+                          ? {
+                              background: 'var(--border)',
+                              color: 'var(--text-muted)',
+                              cursor: 'not-allowed',
+                              boxShadow: 'none',
+                              transform: 'none',
+                            }
+                          : {}
+                      }
+                    >
+                      {ride.seats === 0 ? 'Ride Full' : '⭐ Join Ride'}
+                    </button>
+                  )}
+                </RideCard>
+              );
+            })}
           </>
         )}
       </div>

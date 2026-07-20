@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
@@ -9,28 +9,32 @@ function Navbar() {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setMenuOpen(false);
     navigate('/login');
   };
 
   const close = () => setMenuOpen(false);
 
+  const navCls = ({ isActive }) =>
+    isActive ? 'nav-link nav-link-active' : 'nav-link';
+
   const links = (
     <>
-      <Link to="/" onClick={close}>
+      <NavLink to="/" end className={navCls} onClick={close}>
         Home
-      </Link>
-      <Link to="/search" onClick={close}>
+      </NavLink>
+      <NavLink to="/search" className={navCls} onClick={close}>
         Search Rides
-      </Link>
+      </NavLink>
       {token && (
         <>
-          <Link to="/create-ride" onClick={close}>
-            Create Ride
-          </Link>
-          <Link to="/profile" onClick={close}>
+          <NavLink to="/create-ride" className={navCls} onClick={close}>
+            Offer a Ride
+          </NavLink>
+          <NavLink to="/profile" className={navCls} onClick={close}>
             Profile
-          </Link>
+          </NavLink>
           <button className="nav-logout-btn" onClick={logout}>
             Logout
           </button>
@@ -38,12 +42,12 @@ function Navbar() {
       )}
       {!token && (
         <>
-          <Link to="/login" className="nav-btn-login" onClick={close}>
+          <NavLink to="/login" className="nav-btn-login" onClick={close}>
             Login
-          </Link>
-          <Link to="/register" className="nav-btn-register" onClick={close}>
+          </NavLink>
+          <NavLink to="/register" className="nav-btn-register" onClick={close}>
             Register
-          </Link>
+          </NavLink>
         </>
       )}
     </>
@@ -53,13 +57,9 @@ function Navbar() {
     <>
       <nav className="navbar">
         <div className="nav-logo">
-          <Link to="/">🚗 Khedni Maak</Link>
+          <NavLink to="/">🚗 Khedni Maak</NavLink>
         </div>
-
-        {/* Desktop */}
         <div className="nav-links">{links}</div>
-
-        {/* Mobile hamburger */}
         <button
           className={`nav-hamburger${menuOpen ? ' open' : ''}`}
           onClick={() => setMenuOpen((o) => !o)}
@@ -70,8 +70,6 @@ function Navbar() {
           <span />
         </button>
       </nav>
-
-      {/* Mobile overlay */}
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`}>{links}</div>
     </>
   );
