@@ -1,23 +1,23 @@
 # 🚗 Khednii Ma'ak
 
-> **Share the Ride. Save the Cost.**
+**Share the Ride. Save the Cost.**
 
-Khednii Ma'ak is a full-stack MERN ride-sharing platform designed for Lebanon. It allows users to create rides, search for available trips, join other drivers, and manage their rides through a modern web application.
+Khednii Ma'ak is a full-stack **MERN** ride-sharing platform designed for Lebanon. It enables users to create rides, search for available trips, join rides, and manage their travel through a modern web application.
 
-The project was built to demonstrate full-stack web development using the MERN stack while providing a practical solution for affordable and convenient transportation.
+The platform also features a **Google Gemini-powered AI assistant** that can answer questions about the application and perform natural language ride searches, providing a smarter and more intuitive user experience.
 
 ---
 
-## ✨ Features
+# ✨ Features
 
-### 🔐 Authentication
+## 🔐 Authentication
 
 - User registration
 - Secure login using JWT authentication
 - Protected routes
 - Logout functionality
 
-### 🚗 Ride Management
+## 🚗 Ride Management
 
 - Create a new ride
 - Search available rides
@@ -27,19 +27,27 @@ The project was built to demonstrate full-stack web development using the MERN s
 - View created rides
 - View joined rides
 
-### 👤 User Profile
+## 🤖 AI Assistant
+
+- Google Gemini-powered chatbot
+- Answers questions about the platform
+- Natural language ride search
+- Searches rides directly from the MongoDB database
+- Floating chat widget integrated into the application
+
+## 👤 User Profile
 
 - Personal profile page
 - List of created rides
 - List of joined rides
 
-### 🇱🇧 Lebanon-Focused
+## 🇱🇧 Lebanon-Focused
 
 - Predefined Lebanese cities
 - Searchable city selector
 - Optimized for travel within Lebanon
 
-### 🎨 User Interface
+## 🎨 User Interface
 
 - Responsive layout
 - Modern white and light-blue design
@@ -50,7 +58,7 @@ The project was built to demonstrate full-stack web development using the MERN s
 
 # 🛠️ Tech Stack
 
-### Frontend
+## Frontend
 
 - React
 - Vite
@@ -59,7 +67,7 @@ The project was built to demonstrate full-stack web development using the MERN s
 - React Icons
 - React Select
 
-### Backend
+## Backend
 
 - Node.js
 - Express.js
@@ -67,6 +75,7 @@ The project was built to demonstrate full-stack web development using the MERN s
 - Mongoose
 - JWT Authentication
 - bcryptjs
+- Google Gemini API
 
 ---
 
@@ -90,6 +99,7 @@ khednii-maak/
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
+│   ├── services/
 │   ├── config/
 │   └── server.js
 │
@@ -105,9 +115,6 @@ khednii-maak/
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/khednii-maak.git
-```
-
-```bash
 cd khednii-maak
 ```
 
@@ -128,6 +135,7 @@ Example:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 Start the backend server:
@@ -145,11 +153,6 @@ Open a new terminal.
 ```bash
 cd frontend
 npm install
-```
-
-Run the frontend:
-
-```bash
 npm run dev
 ```
 
@@ -161,31 +164,38 @@ http://localhost:5173
 
 ---
 
+# 🤖 AI Chatbot Examples
+
+The AI assistant can answer questions such as:
+
+- How do I create a ride?
+- How can I join a ride?
+- How do I edit my ride?
+- Find me a ride from Beirut to Tripoli tomorrow.
+- Search for rides from Saida to Beirut.
+
+---
+
 # 📸 Screenshots
 
-> Screenshots will be added after the final UI redesign.
+Screenshots will be added after deployment.
 
 - Home Page
 - Search Rides
 - Create Ride
 - Profile
-- Edit Ride
+- AI Chatbot
 
 ---
 
 # 📌 Future Improvements
 
-The following features are planned for future versions:
-
-- 🤖 AI Ride Assistant
-- 🧠 Natural Language Ride Search
-- 💰 AI Price Recommendation
-- 📝 AI Ride Description Generator
-- ⭐ Driver Ratings & Reviews
-- 💬 In-app Chat
+- ⭐ Driver ratings and reviews
+- 💬 In-app chat
 - 🔔 Notifications
-- 📍 Interactive Maps
-- 📱 Mobile-friendly enhancements
+- 📍 Interactive maps
+- 📧 Email notifications
+- 📱 Mobile application
 
 ---
 
@@ -202,6 +212,8 @@ This project demonstrates:
 - Protected routes
 - Component-based architecture
 - Responsive UI development
+- Google Gemini AI integration
+- Natural language processing for ride search
 
 ---
 
@@ -213,4 +225,4 @@ This project demonstrates:
 
 # 📄 License
 
-This project is intended for educational and portfolio purposes.
+This project is intended for educational purposes.
