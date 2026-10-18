@@ -76,10 +76,10 @@ function Footer() {
                     transition: 'color 0.2s',
                   }}
                   onMouseEnter={(e) =>
-                    (e.target.style.color = 'var(--primary)')
+                    (e.currentTarget.style.color = 'var(--primary)')
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.color = 'var(--text-muted)')
+                    (e.currentTarget.style.color = 'var(--text-muted)')
                   }
                 >
                   {label}
@@ -116,10 +116,10 @@ function Footer() {
                     transition: 'color 0.2s',
                   }}
                   onMouseEnter={(e) =>
-                    (e.target.style.color = 'var(--primary)')
+                    (e.currentTarget.style.color = 'var(--primary)')
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.color = 'var(--text-muted)')
+                    (e.currentTarget.style.color = 'var(--text-muted)')
                   }
                 >
                   {label}

@@ -39,7 +39,7 @@ const getRides = async (req, res) => {
   try {
     const { from, to, date } = req.query;
 
-    const filter = {};
+    const filter: Record<string, unknown> = {};
 
     if (from) {
       filter.from = { $regex: from, $options: 'i' };

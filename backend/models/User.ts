@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+}
+
 const userSchema = new mongoose.Schema(
   {
     name: {

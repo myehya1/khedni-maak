@@ -71,7 +71,7 @@ const searchRideAI = async (req, res) => {
     }
 
     // MongoDB query
-    const query = {
+    const query: Record<string, unknown> = {
       from: new RegExp(`^${search.from}$`, 'i'),
       to: new RegExp(`^${search.to}$`, 'i'),
     };
