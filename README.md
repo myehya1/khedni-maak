@@ -1,6 +1,6 @@
 # 🚗 Khednii Ma'ak
 
-Khednii Ma'ak is a full-stack ride-sharing web application built with the MERN stack. It allows users to create and join rides, search for available trips, manage their profiles, and interact with an AI assistant powered by Google Gemini.
+Khednii Ma'ak is a full-stack TypeScript ride-sharing web application. It allows users to create and join rides, search for available trips, manage their profiles, and interact with a Gemini-powered AI assistant that retrieves relevant product knowledge before answering.
 
 ## 🌟 Features
 
@@ -37,6 +37,7 @@ Khednii Ma'ak is a full-stack ride-sharing web application built with the MERN s
 - Mongoose
 - JSON Web Token (JWT)
 - Google Gemini API
+- Gemini embeddings for semantic retrieval
 
 ### Deployment
 
@@ -44,6 +45,22 @@ Khednii Ma'ak is a full-stack ride-sharing web application built with the MERN s
 - Vercel
 - Docker
 - Docker Compose
+
+---
+
+## Retrieval-Augmented Generation (RAG)
+
+The AI chatbot uses retrieval-augmented generation for questions about the application. Before Gemini creates an answer, the backend searches a trusted in-memory knowledge base for the most relevant documents and includes that context in the prompt.
+
+```text
+User question -> Gemini embedding -> semantic retrieval -> relevant product context -> Gemini answer
+```
+
+The knowledge base covers the features currently available in the app: registration and login, offering and searching for rides, joining and leaving rides, ride management, profiles, account deletion, and natural-language ride search.
+
+The RAG implementation lives in `backend/services/ragService.ts`. It caches document embeddings in memory after the first request. If the embedding request is unavailable, it falls back to keyword retrieval so the chatbot can still answer from matching application knowledge.
+
+To update the chatbot's trusted information, edit the `knowledgeBase` entries in `backend/services/ragService.ts`. No additional environment variables are required; it uses the existing `GEMINI_API_KEY`.
 
 ---
 
@@ -114,11 +131,11 @@ cd ../frontend
 npm install
 ```
 
-### Start the Backend
+### Start the Backend (development)
 
 ```bash
 cd ../backend
-npm start
+npm run dev
 ```
 
 ### Start the Frontend
@@ -126,6 +143,13 @@ npm start
 ```bash
 cd ../frontend
 npm run dev
+```
+
+### Production build
+
+```bash
+cd backend && npm run build
+cd ../frontend && npm run build
 ```
 
 ---

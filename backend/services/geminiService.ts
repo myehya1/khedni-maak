@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { retrieveRelevantContext } = require('./ragService');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -7,6 +8,13 @@ const model = genAI.getGenerativeModel({
 });
 
 const askGemini = async (message) => {
+  const relevantDocuments = await retrieveRelevantContext(message);
+  const retrievedContext = relevantDocuments.length
+    ? relevantDocuments
+        .map((document) => `Source: ${document.title}\n${document.content}`)
+        .join('\n\n')
+    : 'No relevant application documentation was retrieved.';
+
   const systemPrompt = `
 You are Khednii AI, the official assistant for Khednii Ma'ak, a carpooling platform in Lebanon.
 
@@ -28,6 +36,7 @@ Rules:
 - If you don't know something about the application, say so instead of guessing.
 - Assume cities mentioned are in Lebanon unless the user specifies otherwise.
 - Keep answers friendly, concise, and practical.
+- Use the retrieved application documentation below when it is relevant. Do not claim that a feature exists unless it is supported by that documentation.
 
 How to create a ride:
 1. Log in.
@@ -43,7 +52,7 @@ If a user asks something unrelated (math, coding, politics, etc.), politely expl
 `;
 
   const result = await model.generateContent(
-    `${systemPrompt}\n\nUser: ${message}`,
+    `${systemPrompt}\n\nRetrieved application documentation:\n${retrievedContext}\n\nUser: ${message}`,
   );
 
   return result.response.text();
